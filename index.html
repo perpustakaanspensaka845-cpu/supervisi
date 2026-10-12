@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Supervisi Akademik - SMPN 1 Kandat</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800" x-data="supervisiApp()">
+
+  <!-- Main Container -->
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-indigo-900 text-white flex flex-col flex-shrink-0 shadow-lg">
+      <div class="p-5 border-b border-indigo-800 flex items-center space-x-3">
+        <div class="bg-indigo-600 p-2.5 rounded-lg text-white">
+          <i class="fa-solid fa-graduation-cap text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-base leading-tight">SUPERVISI SPENSAKA</h1>
+          <p class="text-xs text-indigo-300">SMP Negeri 1 Kandat</p>
+        </div>
+      </div>
+
+      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-800'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition">
+          <i class="fa-solid fa-chart-pie w-5"></i>
+          <span>Dashboard</span>
+        </button>
+
+        <button @click="activeTab = 'guru'" :class="activeTab === 'guru' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-800'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition">
+          <i class="fa-solid fa-users w-5"></i>
+          <span>Data Guru (50)</span>
+        </button>
+
+        <button @click="activeTab = 'pra'" :class="activeTab === 'pra' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-800'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition">
+          <i class="fa-solid fa-clipboard-check w-5"></i>
+          <span>Form Pra-Observasi</span>
+        </button>
+
+        <button @click="activeTab = 'observasi'" :class="activeTab === 'observasi' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-800'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition">
+          <i class="fa-solid fa-eye w-5"></i>
+          <span>Observasi Kelas</span>
+        </button>
+
+        <button @click="activeTab = 'pasca'" :class="activeTab === 'pasca' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-800'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition">
+          <i class="fa-solid fa-comments w-5"></i>
+          <span>Pasca & Coaching</span>
+        </button>
+
+        <button @click="activeTab = 'program'" :class="activeTab === 'program' ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-800'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition">
+          <i class="fa-solid fa-book-open w-5"></i>
+          <span>Program Kerja 2026</span>
+        </button>
+      </nav>
+
+      <div class="p-4 border-t border-indigo-800 text-xs text-indigo-300">
+        <p class="font-semibold text-white">Kepala Sekolah:</p>
+        <p>Insiyah, S.Pd</p>
+        <p class="mt-1 font-semibold text-white">Waka Akademik:</p>
+        <p>Samiran, S.Pd.I</p>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+      <!-- Topbar -->
+      <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+        <div>
+          <h2 class="text-xl font-bold text-slate-800" x-text="titleMap[activeTab]"></h2>
+          <p class="text-xs text-slate-500">Sistem Informasi Supervisi Akademik Kurikulum Merdeka Revisi 2026</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full font-semibold">T.A 2026/2027</span>
+          <div class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">SP</div>
+        </div>
+      </header>
+
+      <!-- Content Views -->
+      <div class="p-8 space-y-6 flex-1">
+
+        <!-- DASHBOARD TAB -->
+        <div x-show="activeTab === 'dashboard'" class="space-y-6">
+          <!-- Stat Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+              <div class="p-3 bg-blue-100 text-blue-600 rounded-lg"><i class="fa-solid fa-chalkboard-user text-2xl"></i></div>
+              <div>
+                <p class="text-xs text-slate-500 font-medium">Total Guru Binaan</p>
+                <h3 class="text-2xl font-bold text-slate-800" x-text="guruList.length"></h3>
+              </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+              <div class="p-3 bg-amber-100 text-amber-600 rounded-lg"><i class="fa-solid fa-clock text-2xl"></i></div>
+              <div>
+                <p class="text-xs text-slate-500 font-medium">Pra-Observasi</p>
+                <h3 class="text-2xl font-bold text-slate-800" x-text="praList.length"></h3>
+              </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+              <div class="p-3 bg-emerald-100 text-emerald-600 rounded-lg"><i class="fa-solid fa-star text-2xl"></i></div>
+              <div>
+                <p class="text-xs text-slate-500 font-medium">Rata-Rata Nilai</p>
+                <h3 class="text-2xl font-bold text-slate-800">3.8 / 4.0</h3>
+              </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+              <div class="p-3 bg-indigo-100 text-indigo-600 rounded-lg"><i class="fa-solid fa-check-double text-2xl"></i></div>
+              <div>
+                <p class="text-xs text-slate-500 font-medium">Selesai Tindak Lanjut</p>
+                <h3 class="text-2xl font-bold text-slate-800">100%</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Info -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center space-x-2">
+                <i class="fa-solid fa-calendar-day text-indigo-600"></i>
+                <span>Jadwal Observasi Terdekat</span>
+              </h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                  <thead class="text-xs bg-slate-100 text-slate-600 uppercase">
+                    <tr>
+                      <th class="p-3">Tanggal</th>
+                      <th class="p-3">Nama Guru</th>
+                      <th class="p-3">Mata Pelajaran</th>
+                      <th class="p-3">Kelas & Jam</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="item in praList" :key="item.id">
+                      <tr class="border-b hover:bg-slate-50">
+                        <td class="p-3 font-semibold text-slate-700" x-text="item.tglObservasi"></td>
+                        <td class="p-3" x-text="item.nama"></td>
+                        <td class="p-3" x-text="item.mapel"></td>
+                        <td class="p-3">
+                          <span class="bg-slate-200 text-slate-800 text-xs px-2 py-1 rounded" x-text="item.kelas + ' (' + item.jam + ')'"></span>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Profile Unit -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+              <h3 class="font-bold text-slate-800 text-base border-b pb-2">Profil Sekolah</h3>
+              <div class="space-y-2 text-sm">
+                <p><span class="text-slate-500">Nama Sekolah:</span><br><strong class="text-slate-800">SMP Negeri 1 Kandat</strong></p>
+                <p><span class="text-slate-500">NPSN:</span><br><strong class="text-slate-800">20511898</strong></p>
+                <p><span class="text-slate-500">Alamat:</span><br><strong class="text-slate-800">Kandat, Kediri, Jawa Timur</strong></p>
+                <p><span class="text-slate-500">Kepala Sekolah:</span><br><strong class="text-slate-800">Insiyah, S.Pd</strong> (NIP: 197305112006042011)</p>
+                <p><span class="text-slate-500">Waka Akademik:</span><br><strong class="text-slate-800">Samiran, S.Pd.I</strong> (NIP: 198112262006041004)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DATA GURU TAB -->
+        <div x-show="activeTab === 'guru'" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <input type="text" x-model="searchGuru" placeholder="Cari nama guru, NIP, mapel, atau kelas..." class="w-full md:w-96 p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <span class="text-xs text-slate-500">Menampilkan <strong x-text="filteredGuru().length"></strong> dari <span x-text="guruList.length"></span> Guru</span>
+          </div>
+
+          <div class="overflow-x-auto max-h-[600px]">
+            <table class="w-full text-sm text-left">
+              <thead class="text-xs bg-indigo-50 text-indigo-900 uppercase sticky top-0">
+                <tr>
+                  <th class="p-3">No</th>
+                  <th class="p-3">Nama Lengkap</th>
+                  <th class="p-3">NIP</th>
+                  <th class="p-3">Mata Pelajaran</th>
+                  <th class="p-3">Kelas Binaan</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <template x-for="(g, idx) in filteredGuru()" :key="idx">
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-medium text-slate-400" x-text="idx + 1"></td>
+                    <td class="p-3 font-semibold text-slate-800" x-text="g.nama"></td>
+                    <td class="p-3 font-mono text-xs text-slate-600" x-text="g.nip"></td>
+                    <td class="p-3">
+                      <span class="bg-indigo-50 text-indigo-700 font-medium px-2.5 py-1 rounded-md text-xs" x-text="g.mapel"></span>
+                    </td>
+                    <td class="p-3 text-slate-600 text-xs" x-text="g.kelas"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- FORM PRA-OBSERVASI TAB -->
+        <div x-show="activeTab === 'pra'" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+          <div class="flex justify-between items-center border-b pb-4">
+            <h3 class="font-bold text-slate-800 text-lg">Daftar Form Pra-Observasi</h3>
+            <button @click="showModalPra = true" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+              <i class="fa-solid fa-plus"></i>
+              <span>Tambah Pra-Observasi</span>
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <template x-for="item in praList" :key="item.id">
+              <div class="border rounded-xl p-5 bg-slate-50 space-y-3">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded" x-text="item.id"></span>
+                    <h4 class="font-bold text-slate-800 text-lg mt-1" x-text="item.nama"></h4>
+                    <p class="text-xs text-slate-500" x-text="item.mapel + ' • Tgl Input: ' + item.tanggal"></p>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs text-slate-400">Jadwal Observasi:</span>
+                    <p class="font-bold text-indigo-600 text-sm" x-text="item.tglObservasi + ' (' + item.kelas + ' - Jam ' + item.jam + ')'"></p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs bg-white p-4 rounded-lg border">
+                  <div>
+                    <span class="text-slate-400 block">Modul Ajar / ATP:</span>
+                    <strong class="text-slate-700" x-text="item.modul"></strong>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block">Diferensiasi:</span>
+                    <strong class="text-slate-700" x-text="item.diferensiasi"></strong>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block">Media Belajar:</span>
+                    <strong class="text-slate-700" x-text="item.media"></strong>
+                  </div>
+                </div>
+
+                <div class="text-xs text-slate-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                  <strong>Catatan Supervisor:</strong> <span x-text="item.catatan"></span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- FORM OBSERVASI KELAS TAB -->
+        <div x-show="activeTab === 'observasi'" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+          <h3 class="font-bold text-slate-800 text-lg border-b pb-4">Instrumen Penilaian Observasi Kelas</h3>
+          <p class="text-xs text-slate-500">Skor Penilaian: 1 (Kurang), 2 (Cukup), 3 (Baik), 4 (Sangat Baik)</p>
+
+          <form @submit.prevent="simpanObservasi()" class="space-y-4 max-w-2xl bg-slate-50 p-6 rounded-xl border">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Guru & ID Supervisi</label>
+              <select x-model="formObs.id" class="w-full p-2 border rounded-lg text-sm bg-white">
+                <option value="">-- Pilih Supervisi --</option>
+                <template x-for="p in praList" :key="p.id">
+                  <option :value="p.id" x-text="p.id + ' - ' + p.nama"></option>
+                </template>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">1. Pembelajaran Bermakna & Joyful (1-4)</label>
+                <input type="number" min="1" max="4" x-model="formObs.a1" class="w-full p-2 border rounded-lg text-sm bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">2. Penerapan Diferensiasi (1-4)</label>
+                <input type="number" min="1" max="4" x-model="formObs.a2" class="w-full p-2 border rounded-lg text-sm bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">3. Keterlibatan Aktif / 4C (1-4)</label>
+                <input type="number" min="1" max="4" x-model="formObs.a3" class="w-full p-2 border rounded-lg text-sm bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">4. Asesmen Formatif & Umpan Balik (1-4)</label>
+                <input type="number" min="1" max="4" x-model="formObs.a4" class="w-full p-2 border rounded-lg text-sm bg-white">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Catatan Observasi Kelas</label>
+              <textarea x-model="formObs.catatan" rows="3" class="w-full p-2 border rounded-lg text-sm bg-white" placeholder="Catatan kelebihan dan area perbaikan saat pembelajaran..."></textarea>
+            </div>
+
+            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm px-6 py-2.5 rounded-lg transition">Simpan Hasil Observasi</button>
+          </form>
+        </div>
+
+        <!-- PASCA OBSERVASI & COACHING TAB -->
+        <div x-show="activeTab === 'pasca'" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+          <h3 class="font-bold text-slate-800 text-lg border-b pb-4">Refleksi Pasca-Observasi & Rencana Tindak Lanjut</h3>
+
+          <div class="border rounded-xl p-5 bg-emerald-50/50 space-y-3">
+            <div class="flex justify-between items-center border-b border-emerald-100 pb-2">
+              <span class="font-bold text-emerald-800 text-sm">Status Coaching: Selesai</span>
+              <span class="text-xs text-slate-500">ID: SUP-016</span>
+            </div>
+            <p class="text-xs text-slate-700"><strong>Guru:</strong> Desi Anggraini, S.Pd</p>
+            <p class="text-xs text-slate-700"><strong>Catatan Refleksi Bersama (Coaching):</strong> Guru mampu mengenali kekuatan pengelolaan kelas dan diferensiasi konten. Area pengembangan pada pemberian umpan balik langsung saat diskusi kelompok.</p>
+            <p class="text-xs text-slate-700"><strong>Rencana Aksi / Tindak Lanjut:</strong> Mengikuti Komunitas Belajar (Kombel) Kurikulum Merdeka topik Asesmen Formatif pada bulan November 2026.</p>
+          </div>
+        </div>
+
+        <!-- PROGRAM KERJA TAB -->
+        <div x-show="activeTab === 'program'" class="bg-white rounded-xl border border-slate-200 shadow-sm p-8 space-y-6 text-slate-700">
+          <div class="border-b pb-4">
+            <h3 class="font-bold text-slate-900 text-2xl">Program Supervisi Akademik Kurikulum Merdeka Revisi 2026</h3>
+            <p class="text-sm text-slate-500">SMP Negeri 1 Kandat • Tahun Pelajaran 2026/2027</p>
+          </div>
+
+          <div class="space-y-6 text-sm leading-relaxed">
+            <section class="space-y-2">
+              <h4 class="font-bold text-indigo-900 text-base">BAB I: PENDAHULUAN</h4>
+              <p>Supervisi akademik dalam implementasi Kurikulum Merdeka mengalami pergeseran paradigma yang mendasar, dari yang semula bersifat inspeksi mencari kesalahan menjadi proses pendampingan klinis dan kolaboratif yang berbasis coaching. Pendekatan ini menempatkan kepala sekolah atau pengawas sebagai mitra profesional yang mendampingi guru dalam mengenali kekuatan serta area pengembangan diri.</p>
+            </section>
+
+            <section class="space-y-2">
+              <h4 class="font-bold text-indigo-900 text-base">BAB II: RUANG LINGKUP & FOKUS SUPERVISI</h4>
+              <ul class="list-disc pl-5 space-y-1">
+                <li><strong>Supervisi Perencanaan Pembelajaran:</strong> Menelaah Prota, Promes, ATP, dan Modul Ajar berdiferensiasi.</li>
+                <li><strong>Supervisi Pelaksanaan Pembelajaran:</strong> Pengamatan prinsip <i>Mindful, Meaningful, and Joyful Learning</i> & 4C.</li>
+                <li><strong>Supervisi Penilaian Proses & Hasil Belajar:</strong> Asesmen formatif, sumatif, dan KKTP.</li>
+              </ul>
+            </section>
+
+            <section class="space-y-2">
+              <h4 class="font-bold text-indigo-900 text-base">BAB III: STRATEGI & TAHAPAN PELAKSANAAN</h4>
+              <p>Siklus 3 Tahapan: Pra-Observasi (Coaching Awal) ➔ Observasi Kelas ➔ Pasca-Observasi (Refleksi & Rencana Aksi).</p>
+            </section>
+
+            <section class="space-y-2">
+              <h4 class="font-bold text-indigo-900 text-base">BAB IV: JADWAL DAN RENCANA OPERASIONAL</h4>
+              <p>Juli 2026 - Sosialisasi • Agustus 2026 - Supervisi Perangkat • Sep-Okt 2026 - Supervisi Siklus 1 • Jan-Feb 2027 - Supervisi Siklus 2 • Juni 2027 - Evaluasi Tahunan.</p>
+            </section>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Alpine JS Application State & Data -->
+  <script>
+    function supervisiApp() {
+      return {
+        activeTab: 'dashboard',
+        searchGuru: '',
+        showModalPra: false,
+        titleMap: {
+          'dashboard': 'Dashboard & Rekapitulasi Supervisi',
+          'guru': 'Direktori Data Guru Spensaka',
+          'pra': 'Form Pra-Observasi Pembelajaran',
+          'observasi': 'Form Observasi Kelas',
+          'pasca': 'Pasca-Observasi & Coaching',
+          'program': 'Dokumen Program Kerja Supervisi 2026'
+        },
+        guruList: [
+          { nama: "Sunhaji, S. Pd.", nip: "19670209 199203 1 009", mapel: "Bahasa Inggris", kelas: "9D, 9E, 9F, 9G, 9H, 9I" },
+          { nama: "Drs. Agus Sinartoudi", nip: "19670805 200501 1 009", mapel: "Ilmu Pengetahuan Sosial", kelas: "8G, 8H, 9C, 9D, 9E, 9F, 9G" },
+          { nama: "Sri Purwaningsih, S. Pd.", nip: "19700721 200801 2 014", mapel: "Ilmu Pengetahuan Alam", kelas: "8A, 8B, 8C, 8D, 8E, 9I" },
+          { nama: "Nawang Kurniasih, S. Pd.", nip: "19700727 199802 2 001", mapel: "Bahasa Inggris", kelas: "7C, 7D, 8A, 8B, 9A, 9B" },
+          { nama: "Siti Qotidjah Nurul K.,S. Pd.", nip: "19701125 200801 2 017", mapel: "Bahasa Inggris", kelas: "7A, 7B, 8F, 8G, 8H, 8I" },
+          { nama: "Sunyoto, S. Pd.", nip: "19720817 200604 1 042", mapel: "Pend. Jasmani Olahraga dan Kesehatan", kelas: "7A-7E, 8F-8I, 9A-9E" },
+          { nama: "Anis Alfiani Farida, S.Pd", nip: "19780415 202221 2 001", mapel: "Ilmu Pengetahuan Alam", kelas: "9D, 9E, 9F, 9G, 9H" },
+          { nama: "Puri Artiti, S.Pd", nip: "19800827 202221 2 022", mapel: "Bahasa Indonesia", kelas: "8D, 8E, 8F, 9F, 9G" },
+          { nama: "Sri Susilowati, S. Pd.", nip: "19801122 200901 2 004", mapel: "Bahasa Jawa", kelas: "8D-8I, 9A-9I" },
+          { nama: "Samiran, S.PdI", nip: "19811226 200604 1 004", mapel: "Matematika", kelas: "9E, 9F, 9G" },
+          { nama: "Setiadi, S.Pd,.Gr", nip: "19880210 201708 1 002", mapel: "Bahasa Indonesia", kelas: "8A, 8B, 8C, 9H, 9I" },
+          { nama: "Arina Mailana Robiatus Subhah,S.Pd", nip: "19950520 201903 2 014", mapel: "Pend Agama Islam dan BP", kelas: "8A-8D, 9D-9G" },
+          { nama: "Anang Sulistyo, S.Pd", nip: "19891107 202221 1 005", mapel: "Bimbingan dan Konseling / Informatika", kelas: "7A-7I, 8A-8E, 9A-9C, 9H" },
+          { nama: "Tri Intan Wulandari, S.Pd", nip: "19900627 202421 2 032", mapel: "Ilmu Pengetahuan Sosial", kelas: "8A-8F, 9A-9B" },
+          { nama: "Desi Anggraini, S.Pd", nip: "19920106 202421 2 040", mapel: "Bahasa Indonesia", kelas: "7E, 7G, 7H, 7I" },
+          { nama: "Wanda Setiyawan, S.Pd", nip: "19920827 202421 1 005", mapel: "Matematika", kelas: "7E, 8A-8E" },
+          { nama: "Binti Ngafifatul Maidah, S.Pd., Gr", nip: "19940508 202221 2 022", mapel: "Bahasa Indonesia", kelas: "7H, 8G-8I, 9A-9B" },
+          { nama: "Luqman Efendi, S.Kom", nip: "19950616 202421 1 011", mapel: "Informatika", kelas: "8A-8I" },
+          { nama: "Luk Luk Atul Khamidatin,S.Pd.", nip: "19960429 202321 2 033", mapel: "Pend Agama Islam dan BP", kelas: "8E-8I, 9A, 9B, 9H, 9I" },
+          { nama: "Iwan Sudrajat, S. Pd.", nip: "19800318 202521 1 065", mapel: "Pend. Jasmani Olahraga dan Kesehatan", kelas: "7F-7I, 8A-8E, 9F-9I" }
+        ],
+        praList: [
+          {
+            id: 'SUP-001',
+            tanggal: '2026-08-03',
+            nama: 'Sunhaji, S. Pd.',
+            mapel: 'Bahasa Inggris',
+            modul: 'Cukup Lengkap, Perlu Penyesuaian ATP',
+            diferensiasi: 'Sangat Optimal (Proses, Konten, & Produk)',
+            media: 'Alat Peraga Fisik / Lembar Kerja Sederhana',
+            catatan: 'Fokus 2: Efektivitas Pengelolaan Kelas & Disiplin Positif',
+            tglObservasi: '2026-08-10',
+            kelas: '9D',
+            jam: 'Jam Ke-3 (08.20 - 09.00)'
+          },
+          {
+            id: 'SUP-016',
+            tanggal: '2026-10-12',
+            nama: 'Desi Anggraini, S.Pd',
+            mapel: 'Bahasa Indonesia',
+            modul: 'Lengkap & Sangat Sesuai Kurikulum Merdeka Revisi',
+            diferensiasi: 'Cukup Baik (Diferensiasi Proses & Konten)',
+            media: 'Interaktif & Berbasis Digital (Multimedia / LKPD Kontekstual)',
+            catatan: 'Fokus 1: Penerapan Pembelajaran Berkesadaran & Joyful Learning',
+            tglObservasi: '2026-10-13',
+            kelas: '9A',
+            jam: 'Jam Ke-3 (08.20 - 09.00)'
+          }
+        ],
+        formObs: { id: '', a1: 4, a2: 4, a3: 4, a4: 4, catatan: '' },
+        filteredGuru() {
+          if (!this.searchGuru) return this.guruList;
+          const q = this.searchGuru.toLowerCase();
+          return this.guruList.filter(g => 
+            g.nama.toLowerCase().includes(q) || 
+            g.nip.includes(q) || 
+            g.mapel.toLowerCase().includes(q) ||
+            g.kelas.toLowerCase().includes(q)
+          );
+        },
+        simpanObservasi() {
+          alert('Data observasi berhasil disimpan!');
+          this.formObs = { id: '', a1: 4, a2: 4, a3: 4, a4: 4, catatan: '' };
+        }
+      }
+    }
+  </script>
+</body>
+</html>
